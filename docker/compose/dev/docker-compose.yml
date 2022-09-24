@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  write-database:
+    image: mysql
+    container_name: write-database
+    restart: always
+    environment:
+      - MYSQL_DATABASE=shopping_db
+      - MYSQL_ROOT_PASSWORD=1q2w3e4r
+    ports:
+      - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - write-database
+    environment:
+      PMA_HOST: write-database
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+  read-database:
+    image: mongo
+    container_name: mongodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    restart: "unless-stopped"
+
+volumes:
+  db:
+    driver: local
+  mongodb_data_container:
+    driver: local
